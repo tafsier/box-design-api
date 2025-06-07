@@ -1,34 +1,40 @@
+from flask import Flask, send_file
 from fpdf import FPDF
 import os
 
-# إعداد بيانات الشركة
-company_name = "WIZARD"
-slogan = "THE WORLD OF WIZARD"
-address = "Guangzhou, China"
-color_scheme = ["#D2691E", "#FFFFFF", "#8B4513"]
+app = Flask(__name__)
 
-# إنشاء ملف PDF
-pdf = FPDF(orientation='P', unit='mm', format='A4')
-pdf.add_page()
+@app.route('/')
+def home():
+    return "Box Design API is running!"
 
-# إعداد الألوان والخطوط
-pdf.set_font("Arial", 'B', 24)
-pdf.set_text_color(0, 0, 0)
-pdf.set_fill_color(210, 105, 30)  # اللون البني (من color_scheme)
+@app.route('/generate')
+def generate_box_design():
+    company_name = "WIZARD"
+    slogan = "THE WORLD OF WIZARD"
+    address = "Guangzhou, China"
+    color_scheme = ["#D2691E", "#FFFFFF", "#8B4513"]
+    output_path = "/tmp/box_design.pdf"
 
-# العنوان
-pdf.cell(0, 20, f"{company_name} - Packaging", 0, 1, 'C', fill=True)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=20)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(200, 10, txt=company_name, ln=True, align='C')
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt=slogan, ln=True, align='C')
+    pdf.cell(200, 10, txt=address, ln=True, align='C')
 
-# الشعار النصي
-pdf.set_font("Arial", '', 14)
-pdf.set_fill_color(255, 255, 255)
-pdf.cell(0, 10, slogan, 0, 1, 'C')
+    pdf.set_fill_color(210, 105, 30)
+    pdf.rect(10, 70, 60, 10, 'F')
+    pdf.set_fill_color(255, 255, 255)
+    pdf.rect(80, 70, 60, 10, 'F')
+    pdf.set_fill_color(139, 69, 19)
+    pdf.rect(150, 70, 60, 10, 'F')
 
-# العنوان
-pdf.set_font("Arial", '', 10)
-pdf.multi_cell(0, 5, address, 0, 'C')
+    pdf.output(output_path)
 
-# حفظ الملف
-output_path = "output.pdf"
-pdf.output(output_path)
-print(f"✅ Design generated: {output_path}")
+    return send_file(output_path, as_attachment=True)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
